@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DisplayProgram</string>
+    <string name="room_401a">ROOM 401A</string>
+    <string name="room_size_65m">Room Size : 65m</string>
+    <string name="capacity_30">Capacity : 30</string>
+    <string name="enter_password">Enter Password</string>
+</resources>
