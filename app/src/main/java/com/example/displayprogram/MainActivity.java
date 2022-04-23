@@ -1,12 +1,23 @@
 package com.example.displayprogram;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,18 +25,48 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.example.displayprogram.Adapter.AdapterClassStatus;
-import com.example.displayprogram.Model.ModelClass;
 
+import com.example.displayprogram.Adapter.AdapterClassStatus;
+import com.example.displayprogram.DB.DBHandler;
+import com.example.displayprogram.Model.ModelClass;
+import com.example.displayprogram.Network.Api;
+import com.example.displayprogram.Network.Response.CheckPasswordResponse;
+import com.example.displayprogram.Network.Response.ServerTimeResponse;
+import com.example.displayprogram.ScheduledJob.MyJobScheduler;
+import com.example.displayprogram.ScheduledJob.MyJobService;
+import com.example.displayprogram.Utils.CommonFunction;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 public class MainActivity extends Activity {
-
+    private static final int REQUEST_READ_PHONE_STATE = 1;
+    private static final int REQUEST_READ_EXTERNAL_STORAGE_STATE = 2;
+    RecyclerView recyclerView;
+    TextView tvRoomNo, tvRoomSize, tvRoomCapacity, tvInfo, tvClassId, tvDate, tvTime, tvRoomName;
+    private String strCurrentDate = "";
+    private String strCurrentTime = "";
+    private String strDeviceId = "";
+    private Context mContext;
+    private ProgressDialog progress;
+    private DBHandler dbHandler;
+    MyJobReceive myJobReceive;
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @SuppressLint({"HardwareIds", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,42 +76,135 @@ public class MainActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
-        ArrayList<ModelClass> myListData = new ArrayList<>();
+        recyclerView = findViewById(R.id.rvClassStatus);
+        tvRoomNo = findViewById(R.id.tvRoomNo);
+        tvRoomSize = findViewById(R.id.tvRoomSize);
+        tvRoomCapacity = findViewById(R.id.tvRoomCapacity);
+        tvInfo = findViewById(R.id.tvInfo);
+        tvClassId = findViewById(R.id.tvClassId);
+        tvDate = findViewById(R.id.tvDate);
+        tvTime = findViewById(R.id.tvTime);
+        tvRoomName = findViewById(R.id.tvRoomName);
 
-        ModelClass m1 = new ModelClass();
-        m1.setUnitCode("MGMT2004");
-        m1.setUnitName("Business & Sustainable Development");
-        m1.setTimeFrame("10:00 am - 12:00 pm");
-        m1.setRemarks("Cancelled");
-        myListData.add(m1);
+        tvRoomNo.setText("");
+        tvRoomSize.setText("Room Size : - ");
+        tvRoomCapacity.setText("Capacity : -");
+        tvInfo.setText("-");
+        tvClassId.setText("-");
+        tvDate.setText("-");
+        tvTime.setText("-");
+        tvRoomName.setText("-");
 
-        ModelClass m2 = new ModelClass();
-        m2.setUnitCode("MGMT2004");
-        m2.setUnitName("Business & Sustainable Development");
-        m2.setTimeFrame("10:00 am - 12:00 pm");
-        m2.setRemarks("Cancelled");
-        myListData.add(m2);
-
-        ModelClass m3 = new ModelClass();
-        m3.setUnitCode("MGMT2004");
-        m3.setUnitName("Business & Sustainable Development");
-        m3.setTimeFrame("10:00 am - 12:00 pm");
-        m3.setRemarks("Cancelled");
-        myListData.add(m3);
-
-        RecyclerView recyclerView = findViewById(R.id.rvClassStatus);
-        AdapterClassStatus adapter = new AdapterClassStatus(myListData);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
-
+        init();
+        scheduleJob();
     }
 
-    public void onClick(View view){
+    private void init() {
+        mContext = this;
+        dbHandler = new DBHandler(mContext);
+        fetchLocalDB();
+
+        // Progress Dialog Initialize
+
+        progress = new ProgressDialog(this);
+        progress.setMessage("Please wait");
+        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progress.setIndeterminate(true);
+        progress.setProgress(0);
+
+
+        // Get Current Date and time
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        strCurrentDate = sdf.format(new Date());
+        Log.e("strCurrentDate : ", strCurrentDate);
+
+        SimpleDateFormat sdfT = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        strCurrentTime = sdfT.format(new Date());
+        Log.e("strCurrentTime : ", strCurrentTime);
+
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+        int permissionCheckRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+        } else if (permissionCheckRead != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE_STATE);
+        } else {
+            strDeviceId = CommonFunction.getDeviceId(this);
+            Log.e("strDeviceId : ", strDeviceId);
+            syncServerTime();
+        }
+    }
+
+    public void syncServerTime(){
+        if (CommonFunction.isNetworkConnected(mContext)) {
+            progress.show();
+            Api.getClient().SyncServerTime(strCurrentDate + " " + strCurrentTime, new Callback<ServerTimeResponse>() {
+                @Override
+                public void success(ServerTimeResponse serverTimeResponse, Response response) {
+                    progress.dismiss();
+                   // checkTimeTable();
+                    Log.e("serverTime : ", serverTimeResponse.getResponse());
+                    Log.e("serverTime : ", serverTimeResponse.getResponse().split(" ")[0]);
+                    Log.e("serverTime : ", serverTimeResponse.getResponse().split(" ")[1]);
+                    if (strCurrentDate.trim().equals(serverTimeResponse.getResponse().split(" ")[0].trim())) {
+                        if (strCurrentTime.split(":")[0].equals(serverTimeResponse.getResponse().split(" ")[1].split(":")[0])) {
+                            checkTimeTable();
+                        } else {
+                            CommonFunction.showMessageInDialog(mContext, "Please set correct time in device.");
+                        }
+                    } else {
+                        CommonFunction.showMessageInDialog(mContext, "Please set correct date in device.");
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.e("error : ", error.getMessage());
+                    progress.dismiss();
+                }
+            });
+        } else {
+            CommonFunction.networkErrorMessage(mContext);
+            fetchLocalDB();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_READ_PHONE_STATE:
+                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+
+                    int permissionCheckRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+                    if (permissionCheckRead != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE_STATE);
+                    } else {
+                        strDeviceId = CommonFunction.getDeviceId(this);
+                        Log.e("strDeviceId : ", strDeviceId);
+                        syncServerTime();
+                    }
+
+                }
+                break;
+            case REQUEST_READ_EXTERNAL_STORAGE_STATE:
+                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    strDeviceId = CommonFunction.getDeviceId(this);
+                    Log.e("strDeviceId : ", strDeviceId);
+                    syncServerTime();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void onClick(View view) {
         showPasswordDialog(view);
     }
 
-    private void showPasswordDialog(View view){
+    private void showPasswordDialog(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         ViewGroup viewGroup = findViewById(android.R.id.content);
         View dialogView = LayoutInflater.from(view.getContext()).inflate(R.layout.passwordview, viewGroup, false);
@@ -80,11 +214,33 @@ public class MainActivity extends Activity {
 
         Button btnSubmit = dialogView.findViewById(R.id.btnSubmit);
         TextView tvTime = dialogView.findViewById(R.id.tvTime);
+        EditText etPassword = dialogView.findViewById(R.id.etPassword);
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 alertDialog.dismiss();
-                showCustomView(view);
+                if (CommonFunction.isNetworkConnected(mContext)) {
+                    progress.show();
+                    Api.getClient().CheckPassword(etPassword.getText().toString().trim(), new Callback<CheckPasswordResponse>() {
+                        @Override
+                        public void success(CheckPasswordResponse checkPasswordResponse, Response response) {
+                            progress.dismiss();
+                            Log.e("PasswordResponse : ", checkPasswordResponse.getResponse());
+                            if (checkPasswordResponse.getResponse().equals("Correct password")) {
+                                showCustomView(view);
+                            } else {
+                                CommonFunction.showMessageInDialog(mContext, checkPasswordResponse.getResponse());
+                            }
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            progress.dismiss();
+                        }
+                    });
+                } else {
+                    CommonFunction.networkErrorMessage(mContext);
+                }
             }
         });
 
@@ -103,14 +259,15 @@ public class MainActivity extends Activity {
         }.start();
 
     }
-    private void showCustomView(View view){
+
+    private void showCustomView(View view) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         ViewGroup viewGroup = findViewById(android.R.id.content);
         View dialogView = LayoutInflater.from(view.getContext()).inflate(R.layout.customview, viewGroup, false);
         builder.setView(dialogView);
-        Button btnTimeTable = dialogView.findViewById(R.id.btnTimeTable) ;
-        Button btnSchedule = dialogView.findViewById(R.id.btnSchedule) ;
-        Button btnExit = dialogView.findViewById(R.id.btnExit) ;
+        Button btnTimeTable = dialogView.findViewById(R.id.btnTimeTable);
+        Button btnSchedule = dialogView.findViewById(R.id.btnSchedule);
+        Button btnExit = dialogView.findViewById(R.id.btnExit);
         btnExit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -140,5 +297,140 @@ public class MainActivity extends Activity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // Do nothing or catch the keys you want to block
         return false;
+    }
+
+    private void checkTimeTable() {
+        if (CommonFunction.isNetworkConnected(mContext)) {
+            Log.e("strDeviceId pass: ", strDeviceId);
+            progress.show();
+            Api.getClient().CheckTimeTable(strDeviceId, new Callback<ArrayList<ModelClass>>() {
+
+                @Override
+                public void success(ArrayList<ModelClass> timeTableResponses, Response response) {
+                    progress.dismiss();
+                    Log.e("ttr : ", "" + timeTableResponses.size());
+                    if (timeTableResponses.size() > 0) {
+                        setUIData(timeTableResponses);
+                        addNewRecordsInSQLiteDB(timeTableResponses);
+                    } else {
+                        Log.e("ttr : ", "0");
+                        CommonFunction.showMessageInDialog(mContext,"No records found using the bellow device id. \n" + strDeviceId );
+                    }
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    progress.dismiss();
+                }
+            });
+        } else {
+            CommonFunction.networkErrorMessage(mContext);
+            fetchLocalDB();
+        }
+    }
+
+    private void reloadTimeTable(ArrayList<ModelClass> listTimeTable) {
+
+        AdapterClassStatus adapter = new AdapterClassStatus(listTimeTable);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void addNewRecordsInSQLiteDB(ArrayList<ModelClass> listTimeTable) {
+        dbHandler.deleteAllRecords();
+        for (int x = 0; x < listTimeTable.size(); x++) {
+            String unitcode = listTimeTable.get(x).getUnitcode();
+            String unitname = listTimeTable.get(x).getUnitname();
+            String classno = listTimeTable.get(x).getClassno();
+            String teachername = listTimeTable.get(x).getTeachername();
+            String schedulestatus = listTimeTable.get(x).getSchedulestatus();
+            String transactiondate = listTimeTable.get(x).getTransactiondate();
+            String starttime = listTimeTable.get(x).getStarttime();
+            String endtime = listTimeTable.get(x).getEndtime();
+            String roomcode = listTimeTable.get(x).getRoomcode();
+            String roomname = listTimeTable.get(x).getRoomname();
+            String roomsize = listTimeTable.get(x).getRoomsize();
+            String roomcapacity = listTimeTable.get(x).getRoomcapacity();
+
+            dbHandler.addTime(unitcode,unitname,classno,teachername,schedulestatus,transactiondate,starttime,endtime,roomcode,roomname,roomsize,roomcapacity);
+        }
+
+        ArrayList<ModelClass> listTimeTableFromDB = dbHandler.getAllDataFromSQLiteDB();
+
+        reloadTimeTable(listTimeTableFromDB);
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void setUIData(ArrayList<ModelClass> timeTableResponses){
+        for (int x = 0; x < timeTableResponses.size(); x++) {
+            if (timeTableResponses.get(x).getTransactiondate() != null) {
+                if (timeTableResponses.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
+                    String strConcatTime = strCurrentTime.split(":")[0].concat(strCurrentTime.split(":")[1]);
+                    Log.e("strConcatTime : ", strConcatTime);
+                    String strStartTime = timeTableResponses.get(x).getStarttime();
+                    String strEndTime = timeTableResponses.get(x).getEndtime();
+                    if (strStartTime != null && strEndTime != null) {
+                        if (Integer.parseInt(strConcatTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatTime) < Integer.parseInt(strEndTime)) {
+                            tvRoomNo.setText(timeTableResponses.get(x).getRoomcode());
+                            tvRoomSize.setText("Room Size : - " + timeTableResponses.get(x).getRoomsize());
+                            tvRoomCapacity.setText("Capacity : -" + timeTableResponses.get(x).getRoomcapacity());
+                            tvInfo.setText(timeTableResponses.get(x).getUnitcode() + ", " + timeTableResponses.get(x).getUnitname());
+                            tvClassId.setText(timeTableResponses.get(x).getClassno());
+                            tvDate.setText(timeTableResponses.get(x).getTransactiondate());
+                            tvTime.setText(timeTableResponses.get(x).getStarttime() + " - " + timeTableResponses.get(x).getEndtime());
+                            tvRoomName.setText(timeTableResponses.get(x).getRoomname());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void fetchLocalDB(){
+        if(dbHandler==null){
+            dbHandler = new DBHandler(mContext);
+        }
+        // fetch local db data
+        ArrayList<ModelClass> listTimeTableFromDB = dbHandler.getAllDataFromSQLiteDB();
+        setUIData(listTimeTableFromDB);
+        reloadTimeTable(listTimeTableFromDB);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void scheduleJob(){
+        JobScheduler jobScheduler = (JobScheduler) mContext.getSystemService(JOB_SCHEDULER_SERVICE);
+
+        @SuppressLint("JobSchedulerService") ComponentName componentName = new ComponentName(this, MyJobScheduler.class);
+        JobInfo jobInfo = new JobInfo.Builder(1, componentName)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(5*60*1000)
+                .build();
+        jobScheduler.schedule(jobInfo);
+    }
+
+    @Override
+    protected void onStart() {
+        myJobReceive = new MyJobReceive();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("MY_ACTION");
+        registerReceiver(myJobReceive, intentFilter);
+        super.onStart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(myJobReceive);
+        super.onDestroy();
+    }
+
+    public class MyJobReceive extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e("MyJobReceive","onReceive");
+            syncServerTime();
+        }
     }
 }

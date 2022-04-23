@@ -33,8 +33,8 @@ public class AdapterClassStatus extends RecyclerView.Adapter<AdapterClassStatus.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         final ModelClass myListData = listData.get(position);
-        holder.tvMessage.setText(myListData.getUnitCode()+", "+myListData.getUnitName() + " - " + myListData.getTimeFrame());
-        holder.tvStatus.setText(myListData.getRemarks());
+        holder.tvMessage.setText(myListData.getUnitcode()+", "+myListData.getUnitname() + " - " + myListData.getStarttime()+ " - " + myListData.getEndtime());
+        holder.tvStatus.setText(myListData.getSchedulestatus());
     }
 
     @Override

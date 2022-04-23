@@ -1,69 +1,102 @@
 package com.example.displayprogram.Model;
 
 public class ModelClass {
-    private String unitCode,unitName,classNumber,startDate,endDate,timeFrame,teacherName,remarks;
+    private String unitcode,unitname,classno,teachername,schedulestatus;
+    private String transactiondate,starttime,endtime,roomcode,roomname,roomsize,roomcapacity;
 
-    public String getUnitCode() {
-        return unitCode;
+    public String getUnitcode() {
+        return unitcode;
     }
 
-    public void setUnitCode(String unitCode) {
-        this.unitCode = unitCode;
+    public void setUnitcode(String unitcode) {
+        this.unitcode = unitcode;
     }
 
-    public String getUnitName() {
-        return unitName;
+    public String getUnitname() {
+        return unitname;
     }
 
-    public void setUnitName(String unitName) {
-        this.unitName = unitName;
+    public void setUnitname(String unitname) {
+        this.unitname = unitname;
     }
 
-    public String getClassNumber() {
-        return classNumber;
+    public String getClassno() {
+        return classno;
     }
 
-    public void setClassNumber(String classNumber) {
-        this.classNumber = classNumber;
+    public void setClassno(String classno) {
+        this.classno = classno;
     }
 
-    public String getStartDate() {
-        return startDate;
+    public String getTeachername() {
+        return teachername;
     }
 
-    public void setStartDate(String startDate) {
-        this.startDate = startDate;
+    public void setTeachername(String teachername) {
+        this.teachername = teachername;
     }
 
-    public String getEndDate() {
-        return endDate;
+    public String getSchedulestatus() {
+        return schedulestatus;
     }
 
-    public void setEndDate(String endDate) {
-        this.endDate = endDate;
+    public void setSchedulestatus(String schedulestatus) {
+        this.schedulestatus = schedulestatus;
     }
 
-    public String getTimeFrame() {
-        return timeFrame;
+    public String getTransactiondate() {
+        return transactiondate;
     }
 
-    public void setTimeFrame(String timeFrame) {
-        this.timeFrame = timeFrame;
+    public void setTransactiondate(String transactiondate) {
+        this.transactiondate = transactiondate;
     }
 
-    public String getTeacherName() {
-        return teacherName;
+    public String getStarttime() {
+        return starttime;
     }
 
-    public void setTeacherName(String teacherName) {
-        this.teacherName = teacherName;
+    public void setStarttime(String strarttime) {
+        this.starttime = strarttime;
     }
 
-    public String getRemarks() {
-        return remarks;
+    public String getEndtime() {
+        return endtime;
     }
 
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
+    public void setEndtime(String endtime) {
+        this.endtime = endtime;
+    }
+
+    public String getRoomcode() {
+        return roomcode;
+    }
+
+    public void setRoomcode(String roomcode) {
+        this.roomcode = roomcode;
+    }
+
+    public String getRoomname() {
+        return roomname;
+    }
+
+    public void setRoomname(String roomname) {
+        this.roomname = roomname;
+    }
+
+    public String getRoomsize() {
+        return roomsize;
+    }
+
+    public void setRoomsize(String roomsize) {
+        this.roomsize = roomsize;
+    }
+
+    public String getRoomcapacity() {
+        return roomcapacity;
+    }
+
+    public void setRoomcapacity(String roomcapacity) {
+        this.roomcapacity = roomcapacity;
     }
 }
