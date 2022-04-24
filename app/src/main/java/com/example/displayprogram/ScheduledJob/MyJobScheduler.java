@@ -12,7 +12,7 @@ import androidx.annotation.RequiresApi;
 public class MyJobScheduler extends JobService {
     @Override
     public boolean onStartJob(JobParameters jobParameters) {
-        Log.e("onStart","onStart");
+        Log.e("MyJobScheduler : ","onStart");
         Intent service = new Intent(getApplicationContext(), MyJobService.class);
         getApplicationContext().startService(service);
         return false;

@@ -1,6 +1,7 @@
 package com.example.displayprogram.Adapter;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,7 @@ public class AdapterClassStatus extends RecyclerView.Adapter<AdapterClassStatus.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         final ModelClass myListData = listData.get(position);
-
+        Log.e("Adapter : ","date : "+myListData.getTransactiondate());
             holder.tvMessage.setText(myListData.getUnitcode() + ", " + myListData.getUnitname() + " - " + CommonFunction.timeConvert(myListData.getStarttime()) + " - " + CommonFunction.timeConvert(myListData.getEndtime()));
             holder.tvStatus.setText(myListData.getSchedulestatus());
 

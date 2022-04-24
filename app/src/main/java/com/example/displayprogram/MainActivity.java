@@ -3,7 +3,6 @@ package com.example.displayprogram;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.job.JobInfo;
@@ -55,7 +54,6 @@ import retrofit.client.Response;
 public class MainActivity extends Activity {
     private static final int REQUEST_READ_PHONE_STATE = 1;
     private static final int REQUEST_READ_EXTERNAL_STORAGE_STATE = 2;
-    private static final int REQUEST_REORDER_TASK_STATE = 3;
     RecyclerView recyclerView;
     TextView tvRoomNo, tvRoomSize, tvRoomCapacity, tvInfo, tvClassId, tvDate, tvTime, tvTeacherName,tvRemarks;
     private String strCurrentDate = "";
@@ -103,8 +101,15 @@ public class MainActivity extends Activity {
 
     private void init() {
         mContext = this;
-        dbHandler = new DBHandler(mContext);
-        fetchLocalDB();
+        // Get Current Date and time
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        strCurrentDate = sdf.format(new Date());
+        Log.e("strCurrentDate : ", strCurrentDate);
+
+        SimpleDateFormat sdfT = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        strCurrentTime = sdfT.format(new Date());
+        Log.e("strCurrentTime : ", strCurrentTime);
 
         // Progress Dialog Initialize
 
@@ -115,15 +120,8 @@ public class MainActivity extends Activity {
         progress.setProgress(0);
 
 
-        // Get Current Date and time
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        strCurrentDate = sdf.format(new Date());
-        Log.e("strCurrentDate : ", strCurrentDate);
-
-        SimpleDateFormat sdfT = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        strCurrentTime = sdfT.format(new Date());
-        Log.e("strCurrentTime : ", strCurrentTime);
+        dbHandler = new DBHandler(mContext);
+        fetchLocalDB();
 
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
         int permissionCheckRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -147,8 +145,8 @@ public class MainActivity extends Activity {
                 public void success(ServerTimeResponse serverTimeResponse, Response response) {
                     progress.dismiss();
                     //checkTimeTable();
-                    Log.e("serverTime : ", serverTimeResponse.getResponse());
-                    Log.e("serverTime : ", serverTimeResponse.getResponse().split(" ")[0]);
+                    Log.e("serverDateTime : ", serverTimeResponse.getResponse());
+                    Log.e("serverDate : ", serverTimeResponse.getResponse().split(" ")[0]);
                     Log.e("serverTime : ", serverTimeResponse.getResponse().split(" ")[1]);
                     if (strCurrentDate.trim().equals(serverTimeResponse.getResponse().split(" ")[0].trim())) {
                         if (strCurrentTime.split(":")[0].equals(serverTimeResponse.getResponse().split(" ")[1].split(":")[0])) {
@@ -292,12 +290,12 @@ public class MainActivity extends Activity {
                 @Override
                 public void success(ArrayList<ModelClass> timeTableResponses, Response response) {
                     progress.dismiss();
-                    Log.e("ttr : ", "" + timeTableResponses.size());
+                    Log.e("timeTableRes : ", "" + timeTableResponses.size());
                     if (timeTableResponses.size() > 0) {
                         setUIData(timeTableResponses);
                         addNewRecordsInSQLiteDB(timeTableResponses);
                     } else {
-                        Log.e("ttr : ", "0");
+                        Log.e("timeTableRes : ", "0");
                         CommonFunction.showMessageInDialog(mContext,"No records found using the bellow device id. \n" + strDeviceId );
                     }
                 }
