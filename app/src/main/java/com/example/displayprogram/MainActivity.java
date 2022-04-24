@@ -41,7 +41,6 @@ import com.example.displayprogram.Network.Api;
 import com.example.displayprogram.Network.Response.CheckPasswordResponse;
 import com.example.displayprogram.Network.Response.ServerTimeResponse;
 import com.example.displayprogram.ScheduledJob.MyJobScheduler;
-import com.example.displayprogram.ScheduledJob.MyJobService;
 import com.example.displayprogram.Utils.CommonFunction;
 
 import java.text.SimpleDateFormat;
@@ -56,8 +55,9 @@ import retrofit.client.Response;
 public class MainActivity extends Activity {
     private static final int REQUEST_READ_PHONE_STATE = 1;
     private static final int REQUEST_READ_EXTERNAL_STORAGE_STATE = 2;
+    private static final int REQUEST_REORDER_TASK_STATE = 3;
     RecyclerView recyclerView;
-    TextView tvRoomNo, tvRoomSize, tvRoomCapacity, tvInfo, tvClassId, tvDate, tvTime, tvRoomName;
+    TextView tvRoomNo, tvRoomSize, tvRoomCapacity, tvInfo, tvClassId, tvDate, tvTime, tvTeacherName,tvRemarks;
     private String strCurrentDate = "";
     private String strCurrentTime = "";
     private String strDeviceId = "";
@@ -66,7 +66,7 @@ public class MainActivity extends Activity {
     private DBHandler dbHandler;
     MyJobReceive myJobReceive;
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    @SuppressLint({"HardwareIds", "SetTextI18n"})
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,16 +84,18 @@ public class MainActivity extends Activity {
         tvClassId = findViewById(R.id.tvClassId);
         tvDate = findViewById(R.id.tvDate);
         tvTime = findViewById(R.id.tvTime);
-        tvRoomName = findViewById(R.id.tvRoomName);
+        tvTeacherName = findViewById(R.id.tvTeacherName);
+        tvRemarks = findViewById(R.id.tvRemarks);
 
         tvRoomNo.setText("");
-        tvRoomSize.setText("Room Size : - ");
-        tvRoomCapacity.setText("Capacity : -");
+        tvRoomSize.setText("Room Size :  ");
+        tvRoomCapacity.setText("Capacity : ");
         tvInfo.setText("-");
         tvClassId.setText("-");
         tvDate.setText("-");
         tvTime.setText("-");
-        tvRoomName.setText("-");
+        tvTeacherName.setText("-");
+        tvRemarks.setText("-");
 
         init();
         scheduleJob();
@@ -144,7 +146,7 @@ public class MainActivity extends Activity {
                 @Override
                 public void success(ServerTimeResponse serverTimeResponse, Response response) {
                     progress.dismiss();
-                   // checkTimeTable();
+                    //checkTimeTable();
                     Log.e("serverTime : ", serverTimeResponse.getResponse());
                     Log.e("serverTime : ", serverTimeResponse.getResponse().split(" ")[0]);
                     Log.e("serverTime : ", serverTimeResponse.getResponse().split(" ")[1]);
@@ -175,8 +177,8 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {
             case REQUEST_READ_PHONE_STATE:
+            case REQUEST_READ_EXTERNAL_STORAGE_STATE:
                 if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-
                     int permissionCheckRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
                     if (permissionCheckRead != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE_STATE);
@@ -185,14 +187,6 @@ public class MainActivity extends Activity {
                         Log.e("strDeviceId : ", strDeviceId);
                         syncServerTime();
                     }
-
-                }
-                break;
-            case REQUEST_READ_EXTERNAL_STORAGE_STATE:
-                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    strDeviceId = CommonFunction.getDeviceId(this);
-                    Log.e("strDeviceId : ", strDeviceId);
-                    syncServerTime();
                 }
                 break;
             default:
@@ -280,17 +274,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        //super.onBackPressed();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        ActivityManager activityManager = (ActivityManager) getApplicationContext()
-                .getSystemService(Context.ACTIVITY_SERVICE);
-
-        activityManager.moveTaskToFront(getTaskId(), 0);
+      //  super.onBackPressed();
     }
 
     @Override
@@ -352,6 +336,10 @@ public class MainActivity extends Activity {
             String roomname = listTimeTable.get(x).getRoomname();
             String roomsize = listTimeTable.get(x).getRoomsize();
             String roomcapacity = listTimeTable.get(x).getRoomcapacity();
+            Log.e("date :",transactiondate);
+            Log.e("start time  :",starttime);
+            Log.e("end time :",endtime);
+
 
             dbHandler.addTime(unitcode,unitname,classno,teachername,schedulestatus,transactiondate,starttime,endtime,roomcode,roomname,roomsize,roomcapacity);
         }
@@ -373,14 +361,16 @@ public class MainActivity extends Activity {
                     String strEndTime = timeTableResponses.get(x).getEndtime();
                     if (strStartTime != null && strEndTime != null) {
                         if (Integer.parseInt(strConcatTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatTime) < Integer.parseInt(strEndTime)) {
-                            tvRoomNo.setText(timeTableResponses.get(x).getRoomcode());
+                            tvRoomNo.setText("ROOM " +timeTableResponses.get(x).getRoomcode());
                             tvRoomSize.setText("Room Size : - " + timeTableResponses.get(x).getRoomsize());
-                            tvRoomCapacity.setText("Capacity : -" + timeTableResponses.get(x).getRoomcapacity());
+                            tvRoomCapacity.setText("Capacity : " + timeTableResponses.get(x).getRoomcapacity());
                             tvInfo.setText(timeTableResponses.get(x).getUnitcode() + ", " + timeTableResponses.get(x).getUnitname());
                             tvClassId.setText(timeTableResponses.get(x).getClassno());
-                            tvDate.setText(timeTableResponses.get(x).getTransactiondate());
-                            tvTime.setText(timeTableResponses.get(x).getStarttime() + " - " + timeTableResponses.get(x).getEndtime());
-                            tvRoomName.setText(timeTableResponses.get(x).getRoomname());
+                            tvDate.setText(CommonFunction.getDateInDDMMMMYYYY(timeTableResponses.get(x).getTransactiondate()));
+                            tvTime.setText(CommonFunction.timeConvert(timeTableResponses.get(x).getStarttime() )+ " - " + CommonFunction.timeConvert(timeTableResponses.get(x).getEndtime()));
+                            tvTeacherName.setText(timeTableResponses.get(x).getTeachername());
+                            tvRemarks.setText(timeTableResponses.get(x).getSchedulestatus());
+
                         }
                     }
                 }

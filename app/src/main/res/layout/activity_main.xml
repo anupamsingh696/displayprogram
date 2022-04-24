@@ -160,7 +160,7 @@
                 android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/tvRoomName"
+                android:id="@+id/tvTeacherName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -171,6 +171,7 @@
                 android:textSize="18sp" />
 
             <TextView
+                android:id="@+id/tvRemarks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"

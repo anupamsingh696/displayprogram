@@ -10,13 +10,19 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Objects;
+
 public class CommonFunction {
+
     @SuppressLint("HardwareIds")
     public static String getDeviceId(Context context) {
 
-        String IME;
+        String deviceId;
 
-       /* if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             deviceId = Settings.Secure.getString(
                     context.getContentResolver(),
                     Settings.Secure.ANDROID_ID);
@@ -29,29 +35,10 @@ public class CommonFunction {
                         context.getContentResolver(),
                         Settings.Secure.ANDROID_ID);
             }
-        }*/
-
-        TelephonyManager mTelephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (mTelephony.getPhoneCount() == 2) {
-                    IME = mTelephony.getImei(0);
-                }else{
-                    IME = mTelephony.getImei();
-                }
-            }else{
-                if (mTelephony.getPhoneCount() == 2) {
-                    IME = mTelephony.getDeviceId(0);
-                } else {
-                    IME = mTelephony.getDeviceId();
-                }
-            }
-        } else {
-            IME = mTelephony.getDeviceId();
         }
 
-        return IME;
+
+        return deviceId;
     }
 
     public static boolean isNetworkConnected(Context context) {
@@ -60,11 +47,11 @@ public class CommonFunction {
         return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
     }
 
-    public static void networkErrorMessage(Context context){
-        Toast.makeText(context,"Network not available in device",Toast.LENGTH_LONG).show();
+    public static void networkErrorMessage(Context context) {
+        Toast.makeText(context, "Network not available in device", Toast.LENGTH_LONG).show();
     }
 
-    public static void showMessageInDialog(Context context,String string){
+    public static void showMessageInDialog(Context context, String string) {
         AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
         builder1.setMessage(string);
         builder1.setCancelable(true);
@@ -79,5 +66,35 @@ public class CommonFunction {
 
         AlertDialog alert11 = builder1.create();
         alert11.show();
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    public static String getDateInDDMMMMYYYY(String strDate) {
+        String reformattedStr = "";
+        SimpleDateFormat fromUser = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat myFormat = new SimpleDateFormat("dd MMMM yyyy");
+
+        try {
+            reformattedStr = myFormat.format(Objects.requireNonNull(fromUser.parse(strDate)));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return reformattedStr;
+    }
+
+    public static String timeConvert(String strTime) {
+        String time = "";
+        try {
+            String _24HourTime = strTime;
+            SimpleDateFormat _24HourSDF = new SimpleDateFormat("HHmm");
+            SimpleDateFormat _12HourSDF = new SimpleDateFormat("hh:mm a");
+            Date _24HourDt = _24HourSDF.parse(_24HourTime);
+            System.out.println(_24HourDt);
+            System.out.println(_12HourSDF.format(_24HourDt));
+            time = _12HourSDF.format(_24HourDt);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return time;
     }
 }
