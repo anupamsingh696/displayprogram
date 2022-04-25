@@ -360,7 +360,7 @@ public class MainActivity extends Activity {
                     if (strStartTime != null && strEndTime != null) {
                         if (Integer.parseInt(strConcatTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatTime) < Integer.parseInt(strEndTime)) {
                             tvRoomNo.setText("ROOM " +timeTableResponses.get(x).getRoomcode());
-                            tvRoomSize.setText("Room Size : - " + timeTableResponses.get(x).getRoomsize());
+                            tvRoomSize.setText("Room Size : " + timeTableResponses.get(x).getRoomsize());
                             tvRoomCapacity.setText("Capacity : " + timeTableResponses.get(x).getRoomcapacity());
                             tvInfo.setText(timeTableResponses.get(x).getUnitcode() + ", " + timeTableResponses.get(x).getUnitname());
                             tvClassId.setText(timeTableResponses.get(x).getClassno());
