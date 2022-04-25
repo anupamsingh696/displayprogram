@@ -149,11 +149,11 @@ public class MainActivity extends Activity {
                     Log.e("serverDate : ", serverTimeResponse.getResponse().split(" ")[0]);
                     Log.e("serverTime : ", serverTimeResponse.getResponse().split(" ")[1]);
                     if (strCurrentDate.trim().equals(serverTimeResponse.getResponse().split(" ")[0].trim())) {
-                        if (strCurrentTime.split(":")[0].equals(serverTimeResponse.getResponse().split(" ")[1].split(":")[0])) {
+                       // if (strCurrentTime.split(":")[0].equals(serverTimeResponse.getResponse().split(" ")[1].split(":")[0])) {
                             checkTimeTable();
-                        } else {
+                        /*} else {
                             CommonFunction.showMessageInDialog(mContext, "Please set correct time in device.");
-                        }
+                        }*/
                     } else {
                         CommonFunction.showMessageInDialog(mContext, "Please set correct date in device.");
                     }
