@@ -84,7 +84,7 @@
                                 android:text="@string/room_size_65m"
                                 android:gravity="center"
                                 android:textColor="@color/white"
-                                android:textSize="30sp"
+                                android:textSize="27sp"
                                 />
                         </LinearLayout>
 
@@ -101,7 +101,7 @@
                                 android:gravity="center"
                                 android:text="@string/capacity_30"
                                 android:textColor="@color/white"
-                                android:textSize="30sp"
+                                android:textSize="27sp"
                                 />
                         </LinearLayout>
                     </LinearLayout>
