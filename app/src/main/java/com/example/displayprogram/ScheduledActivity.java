@@ -5,7 +5,6 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -72,6 +71,7 @@ public class ScheduledActivity extends AppCompatActivity {
         tvRemarks.setText("-");
 
     }
+
     @SuppressLint({"SetTextI18n", "NonConstantResourceId"})
     public void onClick1(View view) {
         switch (view.getId()) {
@@ -80,15 +80,10 @@ public class ScheduledActivity extends AppCompatActivity {
                 int hour = mCurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mCurrentTime.get(Calendar.MINUTE);
 
-                 TimePickerDialog timePickerDialog = new TimePickerDialog(ScheduledActivity.this,
+                TimePickerDialog timePickerDialog = new TimePickerDialog(ScheduledActivity.this,
                         (view12, hourOfDay, minute12) -> {
                             tvFromTime.setText(hourOfDay + ":" + minute12);
                             strFromTime = tvFromTime.getText().toString().trim();
-                            if(strToTime.isEmpty()){
-                                Toast.makeText(mContext,"Select To Time",Toast.LENGTH_LONG).show();
-                            }else {
-                                fetchLocalDB();
-                            }
                         }, hour, minute, false);
                 timePickerDialog.show();
                 break;
@@ -97,17 +92,22 @@ public class ScheduledActivity extends AppCompatActivity {
                 int hour1 = mCurrentTime1.get(Calendar.HOUR_OF_DAY);
                 int minute1 = mCurrentTime1.get(Calendar.MINUTE);
 
-                 TimePickerDialog timePickerDialog1 = new TimePickerDialog(ScheduledActivity.this,
+                TimePickerDialog timePickerDialog1 = new TimePickerDialog(ScheduledActivity.this,
                         (view1, hourOfDay, minute11) -> {
                             tvToTime.setText(hourOfDay + ":" + minute11);
                             strToTime = tvToTime.getText().toString().trim();
-                            if(strFromTime.isEmpty()){
-                                Toast.makeText(mContext,"Select From Time",Toast.LENGTH_LONG).show();
-                            }else {
-                                fetchLocalDB();
-                            }
+
                         }, hour1, minute1, false);
                 timePickerDialog1.show();
+                break;
+            case R.id.tvSearch:
+                if (strFromTime.isEmpty()) {
+                    Toast.makeText(mContext, "Select From Time", Toast.LENGTH_LONG).show();
+                }else if (strToTime.isEmpty()) {
+                    Toast.makeText(mContext, "Select To Time", Toast.LENGTH_LONG).show();
+                } else {
+                    fetchLocalDB();
+                }
                 break;
         }
     }
@@ -115,7 +115,7 @@ public class ScheduledActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         finish();
-         super.onBackPressed();
+        super.onBackPressed();
     }
 
     /*@Override
@@ -123,14 +123,14 @@ public class ScheduledActivity extends AppCompatActivity {
         // Do nothing or catch the keys you want to block
         return false;
     }*/
-    private void fetchLocalDB(){
+    private void fetchLocalDB() {
         // fetch local db data
         ArrayList<ModelClass> listTimeTableFromDB = dbHandler.getAllDataFromSQLiteDB();
         setUIData(listTimeTableFromDB);
     }
 
     @SuppressLint("SetTextI18n")
-    private void setUIData(ArrayList<ModelClass> timeTableResponses){
+    private void setUIData(ArrayList<ModelClass> timeTableResponses) {
         tvInfo.setText("-");
         tvClassId.setText("-");
         tvDate.setText("-");
@@ -142,7 +142,7 @@ public class ScheduledActivity extends AppCompatActivity {
             if (timeTableResponses.get(x).getTransactiondate() != null) {
                 if (timeTableResponses.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
                     //String strConcatTime = strCurrentTime.split(":")[0].concat(strCurrentTime.split(":")[1]);
-                    String strConcatTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);;
+                    String strConcatTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
                     Log.e("strConcatTime : ", strConcatTime);
                     String strStartTime = timeTableResponses.get(x).getStarttime();
                     String strEndTime = timeTableResponses.get(x).getEndtime();
@@ -152,7 +152,7 @@ public class ScheduledActivity extends AppCompatActivity {
                             tvInfo.setText(timeTableResponses.get(x).getUnitcode() + ", " + timeTableResponses.get(x).getUnitname());
                             tvClassId.setText(timeTableResponses.get(x).getClassno());
                             tvDate.setText(CommonFunction.getDateInDDMMMMYYYY(timeTableResponses.get(x).getTransactiondate()));
-                            tvTime.setText(CommonFunction.timeConvert(timeTableResponses.get(x).getStarttime() )+ " - " + CommonFunction.timeConvert(timeTableResponses.get(x).getEndtime()));
+                            tvTime.setText(CommonFunction.timeConvert(timeTableResponses.get(x).getStarttime()) + " - " + CommonFunction.timeConvert(timeTableResponses.get(x).getEndtime()));
                             tvTeacherName.setText(timeTableResponses.get(x).getTeachername());
                             tvRemarks.setText(timeTableResponses.get(x).getSchedulestatus());
 
