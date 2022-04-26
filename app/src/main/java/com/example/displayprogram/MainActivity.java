@@ -207,32 +207,29 @@ public class MainActivity extends Activity {
         Button btnSubmit = dialogView.findViewById(R.id.btnSubmit);
         TextView tvTime = dialogView.findViewById(R.id.tvTime);
         EditText etPassword = dialogView.findViewById(R.id.etPassword);
-        btnSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.dismiss();
-                if (CommonFunction.isNetworkConnected(mContext)) {
-                    progress.show();
-                    Api.getClient().CheckPassword(etPassword.getText().toString().trim(), new Callback<CheckPasswordResponse>() {
-                        @Override
-                        public void success(CheckPasswordResponse checkPasswordResponse, Response response) {
-                            progress.dismiss();
-                            Log.e("PasswordResponse : ", checkPasswordResponse.getResponse());
-                            if (checkPasswordResponse.getResponse().equals("Correct password")) {
-                                showCustomView(view);
-                            } else {
-                                CommonFunction.showMessageInDialog(mContext, checkPasswordResponse.getResponse());
-                            }
+        btnSubmit.setOnClickListener(view1 -> {
+            alertDialog.dismiss();
+            if (CommonFunction.isNetworkConnected(mContext)) {
+                progress.show();
+                Api.getClient().CheckPassword(etPassword.getText().toString().trim(), new Callback<CheckPasswordResponse>() {
+                    @Override
+                    public void success(CheckPasswordResponse checkPasswordResponse, Response response) {
+                        progress.dismiss();
+                        Log.e("PasswordResponse : ", checkPasswordResponse.getResponse());
+                        if (checkPasswordResponse.getResponse().equals("Correct password")) {
+                            showCustomView(view1);
+                        } else {
+                            CommonFunction.showMessageInDialog(mContext, checkPasswordResponse.getResponse());
                         }
+                    }
 
-                        @Override
-                        public void failure(RetrofitError error) {
-                            progress.dismiss();
-                        }
-                    });
-                } else {
-                    CommonFunction.networkErrorMessage(mContext);
-                }
+                    @Override
+                    public void failure(RetrofitError error) {
+                        progress.dismiss();
+                    }
+                });
+            } else {
+                CommonFunction.networkErrorMessage(mContext);
             }
         });
 
@@ -260,12 +257,9 @@ public class MainActivity extends Activity {
         Button btnTimeTable = dialogView.findViewById(R.id.btnTimeTable);
         Button btnSchedule = dialogView.findViewById(R.id.btnSchedule);
         Button btnExit = dialogView.findViewById(R.id.btnExit);
-        btnExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
+        btnExit.setOnClickListener(view13 -> finish());
+        btnTimeTable.setOnClickListener(view12 -> startActivity(new Intent(mContext,TimeTableActivity.class)));
+        btnSchedule.setOnClickListener(view1 -> startActivity(new Intent(mContext,ScheduledActivity.class)));
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
@@ -337,7 +331,6 @@ public class MainActivity extends Activity {
             Log.e("date :",transactiondate);
             Log.e("start time  :",starttime);
             Log.e("end time :",endtime);
-
 
             dbHandler.addTime(unitcode,unitname,classno,teachername,schedulestatus,transactiondate,starttime,endtime,roomcode,roomname,roomsize,roomcapacity);
         }
