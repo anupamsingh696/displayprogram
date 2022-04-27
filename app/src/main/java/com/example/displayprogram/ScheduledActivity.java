@@ -11,9 +11,11 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.displayprogram.DB.DBHandler;
 import com.example.displayprogram.Model.ModelClass;
 import com.example.displayprogram.Utils.CommonFunction;
+import com.example.displayprogram.Utils.SessionManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,10 +28,12 @@ public class ScheduledActivity extends Activity {
     TextView tvFromTime, tvToTime, tvInfo, tvClassId, tvDate, tvTime, tvTeacherName, tvRemarks;
     String strFromTime = "";
     String strToTime = "";
+    SessionManager sessionManager;
     private String strCurrentDate = "";
     private Context mContext;
     private DBHandler dbHandler;
 
+    @SuppressLint("DefaultLocale")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +45,7 @@ public class ScheduledActivity extends Activity {
 
         mContext = this;
         dbHandler = new DBHandler(mContext);
+        sessionManager = new SessionManager(mContext);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         strCurrentDate = sdf.format(new Date());
@@ -62,9 +67,23 @@ public class ScheduledActivity extends Activity {
         tvTeacherName.setText("");
         tvRemarks.setText("");
 
+        if (!sessionManager.getStartTime().equals("") && !sessionManager.getEndTime().equals("")) {
+            strFromTime = sessionManager.getStartTime();
+            strToTime = sessionManager.getEndTime();
+            Log.e("start : ",strFromTime);
+            Log.e("end : ",strToTime);
+            String strConcatStartTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
+            String strConcatEndTime = strToTime.split(":")[0].concat(strToTime.split(":")[1]);
+
+            tvFromTime.setText(CommonFunction.timeConvert(strConcatStartTime));
+            tvToTime.setText(CommonFunction.timeConvert(strConcatEndTime));
+
+            fetchLocalDB();
+        }
+
     }
 
-    @SuppressLint({"SetTextI18n", "NonConstantResourceId","DefaultLocale"})
+    @SuppressLint({"SetTextI18n", "NonConstantResourceId", "DefaultLocale"})
     public void onClick1(View view) {
         switch (view.getId()) {
             case R.id.tvFromTime:
@@ -72,11 +91,11 @@ public class ScheduledActivity extends Activity {
                 int hour = mCurrentTime.get(Calendar.HOUR_OF_DAY);
                 int minute = mCurrentTime.get(Calendar.MINUTE);
 
-                 TimePickerDialog timePickerDialog = new TimePickerDialog(ScheduledActivity.this,
+                TimePickerDialog timePickerDialog = new TimePickerDialog(ScheduledActivity.this,
                         (view12, hourOfDay, minute12) -> {
                             strFromTime = String.format("%02d:%02d", hourOfDay, minute12);
-                            Log.e("from : ", String.format("%02d%02d",hourOfDay,minute12));
-                            tvFromTime.setText(CommonFunction.timeConvert(String.format("%02d%02d",hourOfDay,minute12)));
+                            Log.e("from : ", String.format("%02d%02d", hourOfDay, minute12));
+                            tvFromTime.setText(CommonFunction.timeConvert(String.format("%02d%02d", hourOfDay, minute12)));
                         }, hour, minute, false);
                 timePickerDialog.show();
                 break;
@@ -88,19 +107,21 @@ public class ScheduledActivity extends Activity {
                 TimePickerDialog timePickerDialog1 = new TimePickerDialog(ScheduledActivity.this,
                         (view1, hourOfDay, minute11) -> {
                             strToTime = String.format("%02d:%02d", hourOfDay, minute11);
-                            Log.e("to : ", String.format("%02d%02d",hourOfDay,minute11));
-                            tvToTime.setText(CommonFunction.timeConvert(String.format("%02d%02d",hourOfDay,minute11)));
+                            Log.e("to : ", String.format("%02d%02d", hourOfDay, minute11));
+                            tvToTime.setText(CommonFunction.timeConvert(String.format("%02d%02d", hourOfDay, minute11)));
                         }, hour1, minute1, false);
                 timePickerDialog1.show();
                 break;
             case R.id.tvSearch:
-               /* if (strFromTime.isEmpty()) {
+                if (strFromTime.isEmpty()) {
                     Toast.makeText(mContext, "Select From Time", Toast.LENGTH_LONG).show();
                 } else if (strToTime.isEmpty()) {
                     Toast.makeText(mContext, "Select To Time", Toast.LENGTH_LONG).show();
                 } else {
-                    fetchLocalDB();
-                }*/
+                    sessionManager.setStartTime(strFromTime);
+                    sessionManager.setEndTime(strToTime);
+                    Toast.makeText(mContext, "Data saved successfully.", Toast.LENGTH_LONG).show();
+                }
                 break;
         }
     }

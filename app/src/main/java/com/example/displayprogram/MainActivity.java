@@ -41,6 +41,7 @@ import com.example.displayprogram.Network.Response.CheckPasswordResponse;
 import com.example.displayprogram.Network.Response.ServerTimeResponse;
 import com.example.displayprogram.ScheduledJob.MyJobScheduler;
 import com.example.displayprogram.Utils.CommonFunction;
+import com.example.displayprogram.Utils.SessionManager;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,6 +64,10 @@ public class MainActivity extends Activity {
     private ProgressDialog progress;
     private DBHandler dbHandler;
     MyJobReceive myJobReceive;
+    SessionManager sessionManager;
+    String strFromTime = "";
+    String strToTime = "";
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("SetTextI18n")
     @Override
@@ -101,6 +106,9 @@ public class MainActivity extends Activity {
 
     private void init() {
         mContext = this;
+        sessionManager = new SessionManager(mContext);
+        dbHandler = new DBHandler(mContext);
+
         // Get Current Date and time
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -119,8 +127,13 @@ public class MainActivity extends Activity {
         progress.setIndeterminate(true);
         progress.setProgress(0);
 
+        if (!sessionManager.getStartTime().equals("") && !sessionManager.getEndTime().equals("")) {
+            strFromTime = sessionManager.getStartTime();
+            strToTime = sessionManager.getEndTime();
+            Log.e("start : ",strFromTime);
+            Log.e("end : ",strToTime);
+        }
 
-        dbHandler = new DBHandler(mContext);
         fetchLocalDB();
 
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
@@ -144,7 +157,6 @@ public class MainActivity extends Activity {
                 @Override
                 public void success(ServerTimeResponse serverTimeResponse, Response response) {
                     progress.dismiss();
-                    //checkTimeTable();
                     Log.e("serverDateTime : ", serverTimeResponse.getResponse());
                     Log.e("serverDate : ", serverTimeResponse.getResponse().split(" ")[0]);
                     Log.e("serverTime : ", serverTimeResponse.getResponse().split(" ")[1]);
@@ -286,7 +298,7 @@ public class MainActivity extends Activity {
                     progress.dismiss();
                     Log.e("timeTableRes : ", "" + timeTableResponses.size());
                     if (timeTableResponses.size() > 0) {
-                        setUIData(timeTableResponses);
+                        setUIDataUsingCurrentTime(timeTableResponses);
                         addNewRecordsInSQLiteDB(timeTableResponses);
                     } else {
                         Log.e("timeTableRes : ", "0");
@@ -342,7 +354,7 @@ public class MainActivity extends Activity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void setUIData(ArrayList<ModelClass> timeTableResponses){
+    private void setUIDataUsingCurrentTime(ArrayList<ModelClass> timeTableResponses){
         for (int x = 0; x < timeTableResponses.size(); x++) {
             if (timeTableResponses.get(x).getTransactiondate() != null) {
                 if (timeTableResponses.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
@@ -369,13 +381,47 @@ public class MainActivity extends Activity {
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private void setUIDataUsingStartTimeEndTime(ArrayList<ModelClass> timeTableResponses){
+        for (int x = 0; x < timeTableResponses.size(); x++) {
+            if (timeTableResponses.get(x).getTransactiondate() != null) {
+                if (timeTableResponses.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
+                    String strConcatStartTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
+                    String strConcatEndTime = strToTime.split(":")[0].concat(strToTime.split(":")[1]);
+                    Log.e("strConcatTime : ", strConcatStartTime);
+                    Log.e("strConcatEndTime : ", strConcatEndTime);
+                    String strStartTime = timeTableResponses.get(x).getStarttime();
+                    String strEndTime = timeTableResponses.get(x).getEndtime();
+                    if (strStartTime != null && strEndTime != null) {
+                        if (Integer.parseInt(strConcatStartTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatEndTime) < Integer.parseInt(strEndTime)) {
+                            tvRoomNo.setText("ROOM " +timeTableResponses.get(x).getRoomcode());
+                            tvRoomSize.setText("Room Size : " + timeTableResponses.get(x).getRoomsize());
+                            tvRoomCapacity.setText("Capacity : " + timeTableResponses.get(x).getRoomcapacity());
+                            tvInfo.setText(timeTableResponses.get(x).getUnitcode() + ", " + timeTableResponses.get(x).getUnitname());
+                            tvClassId.setText(timeTableResponses.get(x).getClassno());
+                            tvDate.setText(CommonFunction.getDateInDDMMMMYYYY(timeTableResponses.get(x).getTransactiondate()));
+                            tvTime.setText(CommonFunction.timeConvert(timeTableResponses.get(x).getStarttime() )+ " - " + CommonFunction.timeConvert(timeTableResponses.get(x).getEndtime()));
+                            tvTeacherName.setText(timeTableResponses.get(x).getTeachername());
+                            tvRemarks.setText(timeTableResponses.get(x).getSchedulestatus());
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private void fetchLocalDB(){
         if(dbHandler==null){
             dbHandler = new DBHandler(mContext);
         }
         // fetch local db data
         ArrayList<ModelClass> listTimeTableFromDB = dbHandler.getAllDataFromSQLiteDB();
-        setUIData(listTimeTableFromDB);
+        if (!sessionManager.getStartTime().equals("") && !sessionManager.getEndTime().equals("")) {
+            setUIDataUsingStartTimeEndTime(listTimeTableFromDB);
+        }else {
+            setUIDataUsingCurrentTime(listTimeTableFromDB);
+        }
         reloadTimeTable(listTimeTableFromDB);
     }
 
