@@ -5,12 +5,21 @@
     android:layout_height="match_parent"
     android:background="@drawable/border_light_grey_white"
     tools:context=".TimeTableActivity">
-
+    <TextView
+        android:id="@+id/tvHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5sp"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:text="TimeTable" />
     <TextView
         android:id="@+id/tvText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10sp"
+        android:layout_marginTop="5sp"
+        android:layout_below="@id/tvHeader"
         android:padding="5sp"
         android:textSize="26sp"
         android:textStyle="bold|italic"
@@ -55,7 +64,7 @@
                 android:textStyle="bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Start Time"
+                android:text="Start"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -70,7 +79,7 @@
                 android:textStyle="bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="End Time"
+                android:text="End"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -85,7 +94,7 @@
                 android:textStyle="bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Class Id"
+                android:text="Class"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -100,7 +109,7 @@
                 android:textStyle="bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Unit Code"
+                android:text="Code"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -115,7 +124,7 @@
                 android:textStyle="bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Unit Des"
+                android:text="Subject"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -130,7 +139,7 @@
                 android:textStyle="bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Teacher Name"
+                android:text="Teacher"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>
@@ -145,7 +154,7 @@
                 android:textStyle="bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Schedule Status"
+                android:text="Remark"
                 android:textColor="@color/black"
                 android:textSize="18sp" />
         </LinearLayout>

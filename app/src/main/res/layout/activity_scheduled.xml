@@ -16,7 +16,16 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:onClick="onClick1"
+            android:padding="5sp"
+            android:text="Schedule"
+            android:textColor="@color/black"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:onClick="onClick1"
             android:padding="5sp"
             android:text="Set start and end time to show class information."
@@ -27,7 +36,8 @@
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:paddingStart="5sp"
+            android:layout_gravity="left">
 
             <TextView
                 android:id="@+id/tvFromTimeText"
@@ -58,7 +68,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:layout_gravity="center">
+            android:paddingStart="5sp"
+            android:layout_gravity="left">
 
             <TextView
                 android:id="@+id/tvToTimeText"
@@ -90,9 +101,9 @@
             android:layout_width="200dp"
             android:layout_marginTop="5sp"
             android:layout_height="50dp"
-            android:layout_gravity="center"
+            android:layout_gravity="left"
             android:gravity="center"
-            android:layout_marginStart="100dp"
+            android:layout_marginStart="205dp"
             android:onClick="onClick1"
             android:background="@drawable/border_black"
             android:text="Save"

@@ -94,13 +94,13 @@ public class ScheduledActivity extends Activity {
                 timePickerDialog1.show();
                 break;
             case R.id.tvSearch:
-                if (strFromTime.isEmpty()) {
+               /* if (strFromTime.isEmpty()) {
                     Toast.makeText(mContext, "Select From Time", Toast.LENGTH_LONG).show();
                 } else if (strToTime.isEmpty()) {
                     Toast.makeText(mContext, "Select To Time", Toast.LENGTH_LONG).show();
                 } else {
                     fetchLocalDB();
-                }
+                }*/
                 break;
         }
     }
