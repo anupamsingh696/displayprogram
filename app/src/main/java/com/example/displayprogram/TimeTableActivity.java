@@ -1,23 +1,23 @@
 package com.example.displayprogram;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.displayprogram.Adapter.AdapterTimeTable;
 import com.example.displayprogram.DB.DBHandler;
 import com.example.displayprogram.Model.ModelClass;
 
 import java.util.ArrayList;
 
-public class TimeTableActivity extends AppCompatActivity {
+public class TimeTableActivity extends Activity {
+    RecyclerView recyclerView;
     private DBHandler dbHandler;
     private Context mContext;
-    RecyclerView recyclerView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,13 +29,14 @@ public class TimeTableActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.rvTimetable);
 
-        mContext=this;
+        mContext = this;
         dbHandler = new DBHandler(mContext);
+
         fetchLocalDB();
     }
 
-    private void fetchLocalDB(){
-        if(dbHandler==null){
+    private void fetchLocalDB() {
+        if (dbHandler == null) {
             dbHandler = new DBHandler(mContext);
         }
         // fetch local db data
@@ -47,14 +48,14 @@ public class TimeTableActivity extends AppCompatActivity {
     private void reloadTimeTable(ArrayList<ModelClass> listTimeTable) {
         AdapterTimeTable adapter = new AdapterTimeTable(listTimeTable);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new GridLayoutManager(this,2));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
 
     @Override
     public void onBackPressed() {
         finish();
-          super.onBackPressed();
+        super.onBackPressed();
     }
 
    /* @Override

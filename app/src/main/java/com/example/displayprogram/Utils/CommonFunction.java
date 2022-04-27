@@ -81,7 +81,20 @@ public class CommonFunction {
         }
         return reformattedStr;
     }
+    @SuppressLint("SimpleDateFormat")
+    public static String getDateInDDMMYYYY(String strDate) {
+        String reformattedStr = "";
+        SimpleDateFormat fromUser = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat myFormat = new SimpleDateFormat("dd/MM/yyyy");
 
+        try {
+            reformattedStr = myFormat.format(Objects.requireNonNull(fromUser.parse(strDate)));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return reformattedStr;
+    }
+    @SuppressLint("SimpleDateFormat")
     public static String timeConvert(String strTime) {
         String time = "";
         try {

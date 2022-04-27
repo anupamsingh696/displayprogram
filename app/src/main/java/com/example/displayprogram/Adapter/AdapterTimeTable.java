@@ -36,11 +36,13 @@ public class AdapterTimeTable extends RecyclerView.Adapter<AdapterTimeTable.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         final ModelClass myListData = listData.get(position);
-        Log.e("Adapter : ","date : "+myListData.getTransactiondate());
-        holder.tvInfo.setText(myListData.getUnitcode() + ", " + myListData.getUnitname());
+        Log.e("Adapter : ", "date : " + myListData.getTransactiondate());
+        holder.tvDate.setText(CommonFunction.getDateInDDMMYYYY(myListData.getTransactiondate()));
+        holder.tvStartTime.setText(CommonFunction.timeConvert(myListData.getStarttime()));
+        holder.tvEndTime.setText(CommonFunction.timeConvert(myListData.getEndtime()));
         holder.tvClassId.setText(myListData.getClassno());
-        holder.tvDate.setText(CommonFunction.getDateInDDMMMMYYYY(myListData.getTransactiondate()));
-        holder.tvTime.setText(CommonFunction.timeConvert(myListData.getStarttime() )+ " - " + CommonFunction.timeConvert(myListData.getEndtime()));
+        holder.tvUnitCode.setText(myListData.getUnitcode());
+        holder.tvUnitDesc.setText(myListData.getUnitname());
         holder.tvTeacherName.setText(myListData.getTeachername());
         holder.tvRemarks.setText(myListData.getSchedulestatus());
 
@@ -53,15 +55,16 @@ public class AdapterTimeTable extends RecyclerView.Adapter<AdapterTimeTable.View
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public TextView tvInfo, tvClassId, tvDate, tvTime, tvTeacherName,tvRemarks;
+        public TextView tvDate, tvStartTime, tvEndTime, tvClassId, tvUnitCode, tvUnitDesc, tvTeacherName, tvRemarks;
 
         public ViewHolder(View itemView) {
             super(itemView);
-
-            tvInfo = itemView.findViewById(R.id.tvInfo);
-            tvClassId = itemView.findViewById(R.id.tvClassId);
             tvDate = itemView.findViewById(R.id.tvDate);
-            tvTime = itemView.findViewById(R.id.tvTime);
+            tvStartTime = itemView.findViewById(R.id.tvStartTime);
+            tvEndTime = itemView.findViewById(R.id.tvEndTime);
+            tvClassId = itemView.findViewById(R.id.tvClassId);
+            tvUnitCode = itemView.findViewById(R.id.tvUnitCode);
+            tvUnitDesc = itemView.findViewById(R.id.tvUnitDesc);
             tvTeacherName = itemView.findViewById(R.id.tvTeacherName);
             tvRemarks = itemView.findViewById(R.id.tvRemarks);
 
