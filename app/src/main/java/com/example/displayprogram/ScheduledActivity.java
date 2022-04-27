@@ -55,12 +55,12 @@ public class ScheduledActivity extends Activity {
         tvTeacherName = findViewById(R.id.tvTeacherName);
         tvRemarks = findViewById(R.id.tvRemarks);
 
-        tvInfo.setText("-");
-        tvClassId.setText("-");
-        tvDate.setText("-");
-        tvTime.setText("-");
-        tvTeacherName.setText("-");
-        tvRemarks.setText("-");
+        tvInfo.setText("");
+        tvClassId.setText("");
+        tvDate.setText("");
+        tvTime.setText("");
+        tvTeacherName.setText("");
+        tvRemarks.setText("");
 
     }
 
@@ -124,12 +124,12 @@ public class ScheduledActivity extends Activity {
 
     @SuppressLint("SetTextI18n")
     private void setUIData(ArrayList<ModelClass> timeTableResponses) {
-        tvInfo.setText("-");
-        tvClassId.setText("-");
-        tvDate.setText("-");
-        tvTime.setText("-");
-        tvTeacherName.setText("-");
-        tvRemarks.setText("-");
+        tvInfo.setText("");
+        tvClassId.setText("");
+        tvDate.setText("");
+        tvTime.setText("");
+        tvTeacherName.setText("");
+        tvRemarks.setText("");
 
         for (int x = 0; x < timeTableResponses.size(); x++) {
             if (timeTableResponses.get(x).getTransactiondate() != null) {
