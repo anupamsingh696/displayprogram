@@ -78,7 +78,7 @@ public class ScheduledActivity extends Activity {
             tvFromTime.setText(CommonFunction.timeConvert(strConcatStartTime));
             tvToTime.setText(CommonFunction.timeConvert(strConcatEndTime));
 
-            fetchLocalDB();
+           // fetchLocalDB();
         }
 
     }

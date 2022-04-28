@@ -127,14 +127,7 @@ public class MainActivity extends Activity {
         progress.setIndeterminate(true);
         progress.setProgress(0);
 
-        if (!sessionManager.getStartTime().equals("") && !sessionManager.getEndTime().equals("")) {
-            strFromTime = sessionManager.getStartTime();
-            strToTime = sessionManager.getEndTime();
-            Log.e("start : ",strFromTime);
-            Log.e("end : ",strToTime);
-        }
-
-        fetchLocalDB();
+       checkStartEndTimeSavedInPhone();
 
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
         int permissionCheckRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -179,7 +172,7 @@ public class MainActivity extends Activity {
             });
         } else {
             CommonFunction.networkErrorMessage(mContext);
-            fetchLocalDB();
+            checkStartEndTimeSavedInPhone();
         }
     }
 
@@ -298,7 +291,6 @@ public class MainActivity extends Activity {
                     progress.dismiss();
                     Log.e("timeTableRes : ", "" + timeTableResponses.size());
                     if (timeTableResponses.size() > 0) {
-                        setUIDataUsingCurrentTime(timeTableResponses);
                         addNewRecordsInSQLiteDB(timeTableResponses);
                     } else {
                         Log.e("timeTableRes : ", "0");
@@ -313,7 +305,7 @@ public class MainActivity extends Activity {
             });
         } else {
             CommonFunction.networkErrorMessage(mContext);
-            fetchLocalDB();
+           checkStartEndTimeSavedInPhone();
         }
     }
 
@@ -348,37 +340,9 @@ public class MainActivity extends Activity {
         }
 
         ArrayList<ModelClass> listTimeTableFromDB = dbHandler.getAllDataFromSQLiteDB();
-
+        checkStartEndTimeSavedInPhone();
         reloadTimeTable(listTimeTableFromDB);
 
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void setUIDataUsingCurrentTime(ArrayList<ModelClass> timeTableResponses){
-        for (int x = 0; x < timeTableResponses.size(); x++) {
-            if (timeTableResponses.get(x).getTransactiondate() != null) {
-                if (timeTableResponses.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
-                    String strConcatTime = strCurrentTime.split(":")[0].concat(strCurrentTime.split(":")[1]);
-                    Log.e("strConcatTime : ", strConcatTime);
-                    String strStartTime = timeTableResponses.get(x).getStarttime();
-                    String strEndTime = timeTableResponses.get(x).getEndtime();
-                    if (strStartTime != null && strEndTime != null) {
-                        if (Integer.parseInt(strConcatTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatTime) < Integer.parseInt(strEndTime)) {
-                            tvRoomNo.setText("ROOM " +timeTableResponses.get(x).getRoomcode());
-                            tvRoomSize.setText("Room Size : " + timeTableResponses.get(x).getRoomsize());
-                            tvRoomCapacity.setText("Capacity : " + timeTableResponses.get(x).getRoomcapacity());
-                            tvInfo.setText(timeTableResponses.get(x).getUnitcode() + ", " + timeTableResponses.get(x).getUnitname());
-                            tvClassId.setText(timeTableResponses.get(x).getClassno());
-                            tvDate.setText(CommonFunction.getDateInDDMMMMYYYY(timeTableResponses.get(x).getTransactiondate()));
-                            tvTime.setText(CommonFunction.timeConvert(timeTableResponses.get(x).getStarttime() )+ " - " + CommonFunction.timeConvert(timeTableResponses.get(x).getEndtime()));
-                            tvTeacherName.setText(timeTableResponses.get(x).getTeachername());
-                            tvRemarks.setText(timeTableResponses.get(x).getSchedulestatus());
-
-                        }
-                    }
-                }
-            }
-        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -411,16 +375,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void fetchLocalDB(){
-        if(dbHandler==null){
-            dbHandler = new DBHandler(mContext);
-        }
+    private void fetchLocalDB(boolean isMatchStartEbdTime){
         // fetch local db data
         ArrayList<ModelClass> listTimeTableFromDB = dbHandler.getAllDataFromSQLiteDB();
-        if (!sessionManager.getStartTime().equals("") && !sessionManager.getEndTime().equals("")) {
+        if(isMatchStartEbdTime) {
             setUIDataUsingStartTimeEndTime(listTimeTableFromDB);
-        }else {
-            setUIDataUsingCurrentTime(listTimeTableFromDB);
         }
         reloadTimeTable(listTimeTableFromDB);
     }
@@ -458,6 +417,24 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent intent) {
             Log.e("MyJobReceive","onReceive");
             syncServerTime();
+        }
+    }
+
+    private void checkStartEndTimeSavedInPhone(){
+        if (!sessionManager.getStartTime().equals("") && !sessionManager.getEndTime().equals("")) {
+            strFromTime = sessionManager.getStartTime();
+            strToTime = sessionManager.getEndTime();
+            Log.e("start : ",strFromTime);
+            Log.e("end : ",strToTime);
+            String strConcatStartTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
+            String strConcatEndTime = strToTime.split(":")[0].concat(strToTime.split(":")[1]);
+            String strConcatTime = strCurrentTime.split(":")[0].concat(strCurrentTime.split(":")[1]);
+
+            if (Integer.parseInt(strConcatTime) > Integer.parseInt(strConcatStartTime) && Integer.parseInt(strConcatTime) < Integer.parseInt(strConcatEndTime)) {
+                fetchLocalDB(true);
+            }
+        }else {
+            fetchLocalDB(false);
         }
     }
 }
