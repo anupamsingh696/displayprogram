@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textColor="@color/black"
-        android:textSize="27sp"
+        android:textSize="30sp"
         android:padding="5sp"/>
 
     <TextView
@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:text="@string/app_name"
         android:textColor="@color/black"
-        android:textSize="27sp"
+        android:textSize="30sp"
         android:textStyle="italic"
         android:padding="5sp"/>
     <View
