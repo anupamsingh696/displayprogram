@@ -111,13 +111,7 @@ public class MainActivity extends Activity {
 
         // Get Current Date and time
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        strCurrentDate = sdf.format(new Date());
-        Log.e("strCurrentDate : ", strCurrentDate);
-
-        SimpleDateFormat sdfT = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-        strCurrentTime = sdfT.format(new Date());
-        Log.e("strCurrentTime : ", strCurrentTime);
+       updateDateTime();
 
         // Progress Dialog Initialize
 
@@ -144,6 +138,7 @@ public class MainActivity extends Activity {
     }
 
     public void syncServerTime(){
+         updateDateTime();
         if (CommonFunction.isNetworkConnected(mContext)) {
             progress.show();
             Api.getClient().SyncServerTime(strCurrentDate + " " + strCurrentTime, new Callback<ServerTimeResponse>() {
@@ -438,5 +433,15 @@ public class MainActivity extends Activity {
         }else {
             fetchLocalDB(false);
         }
+    }
+
+    private void updateDateTime(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        strCurrentDate = sdf.format(new Date());
+        Log.e("strCurrentDate : ", strCurrentDate);
+
+        SimpleDateFormat sdfT = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        strCurrentTime = sdfT.format(new Date());
+        Log.e("strCurrentTime : ", strCurrentTime);
     }
 }
