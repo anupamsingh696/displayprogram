@@ -90,16 +90,6 @@ public class MainActivity extends Activity {
         tvTeacherName = findViewById(R.id.tvTeacherName);
         tvRemarks = findViewById(R.id.tvRemarks);
 
-        tvRoomNo.setText("");
-        tvRoomSize.setText("Room Size :  ");
-        tvRoomCapacity.setText("Capacity : ");
-        tvInfo.setText("-");
-        tvClassId.setText("-");
-        tvDate.setText("-");
-        tvTime.setText("-");
-        tvTeacherName.setText("-");
-        tvRemarks.setText("-");
-
         init();
         scheduleJob();
     }
@@ -112,6 +102,10 @@ public class MainActivity extends Activity {
         // Get Current Date and time
 
        updateDateTime();
+
+       // update UI
+
+        updateUI();
 
         // Progress Dialog Initialize
 
@@ -429,6 +423,8 @@ public class MainActivity extends Activity {
 
             if (Integer.parseInt(strConcatTime) > Integer.parseInt(strConcatStartTime) && Integer.parseInt(strConcatTime) < Integer.parseInt(strConcatEndTime)) {
                 fetchLocalDB(true);
+            }else{
+                updateUI();
             }
         }else {
             fetchLocalDB(false);
@@ -443,5 +439,18 @@ public class MainActivity extends Activity {
         SimpleDateFormat sdfT = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         strCurrentTime = sdfT.format(new Date());
         Log.e("strCurrentTime : ", strCurrentTime);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void updateUI(){
+        tvRoomNo.setText("");
+        tvRoomSize.setText("Room Size :  ");
+        tvRoomCapacity.setText("Capacity : ");
+        tvInfo.setText("-");
+        tvClassId.setText("-");
+        tvDate.setText("-");
+        tvTime.setText("-");
+        tvTeacherName.setText("-");
+        tvRemarks.setText("-");
     }
 }
