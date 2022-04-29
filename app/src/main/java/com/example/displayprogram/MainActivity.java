@@ -56,17 +56,17 @@ public class MainActivity extends Activity {
     private static final int REQUEST_READ_PHONE_STATE = 1;
     private static final int REQUEST_READ_EXTERNAL_STORAGE_STATE = 2;
     RecyclerView recyclerView;
-    TextView tvRoomNo, tvRoomSize, tvRoomCapacity, tvInfo, tvClassId, tvDate, tvTime, tvTeacherName,tvRemarks;
+    TextView tvRoomNo, tvRoomSize, tvRoomCapacity, tvInfo, tvClassId, tvDate, tvTime, tvTeacherName, tvRemarks;
+    MyJobReceive myJobReceive;
+    SessionManager sessionManager;
+    String strFromTime = "";
+    String strToTime = "";
     private String strCurrentDate = "";
     private String strCurrentTime = "";
     private String strDeviceId = "";
     private Context mContext;
     private ProgressDialog progress;
     private DBHandler dbHandler;
-    MyJobReceive myJobReceive;
-    SessionManager sessionManager;
-    String strFromTime = "";
-    String strToTime = "";
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("SetTextI18n")
@@ -101,9 +101,9 @@ public class MainActivity extends Activity {
 
         // Get Current Date and time
 
-       updateDateTime();
+        updateDateTime();
 
-       // update UI
+        // update UI
 
         updateUI();
 
@@ -115,7 +115,7 @@ public class MainActivity extends Activity {
         progress.setIndeterminate(true);
         progress.setProgress(0);
 
-       checkStartEndTimeSavedInPhone();
+        checkStartEndTimeSavedInPhone();
 
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
         int permissionCheckRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -131,8 +131,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void syncServerTime(){
-         updateDateTime();
+    public void syncServerTime() {
+        updateDateTime();
         if (CommonFunction.isNetworkConnected(mContext)) {
             progress.show();
             Api.getClient().SyncServerTime(strCurrentDate + " " + strCurrentTime, new Callback<ServerTimeResponse>() {
@@ -143,8 +143,8 @@ public class MainActivity extends Activity {
                     Log.e("serverDate : ", serverTimeResponse.getResponse().split(" ")[0]);
                     Log.e("serverTime : ", serverTimeResponse.getResponse().split(" ")[1]);
                     if (strCurrentDate.trim().equals(serverTimeResponse.getResponse().split(" ")[0].trim())) {
-                       // if (strCurrentTime.split(":")[0].equals(serverTimeResponse.getResponse().split(" ")[1].split(":")[0])) {
-                            checkTimeTable();
+                        // if (strCurrentTime.split(":")[0].equals(serverTimeResponse.getResponse().split(" ")[1].split(":")[0])) {
+                        checkTimeTable();
                         /*} else {
                             CommonFunction.showMessageInDialog(mContext, "Please set correct time in device.");
                         }*/
@@ -251,16 +251,21 @@ public class MainActivity extends Activity {
         Button btnTimeTable = dialogView.findViewById(R.id.btnTimeTable);
         Button btnSchedule = dialogView.findViewById(R.id.btnSchedule);
         Button btnExit = dialogView.findViewById(R.id.btnExit);
-        btnExit.setOnClickListener(view13 -> finish());
-        btnTimeTable.setOnClickListener(view12 -> startActivity(new Intent(mContext,TimeTableActivity.class)));
-        btnSchedule.setOnClickListener(view1 -> startActivity(new Intent(mContext,ScheduledActivity.class)));
+
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+
+        btnExit.setOnClickListener(view13 -> {
+            alertDialog.dismiss();
+            finish();
+        });
+        btnTimeTable.setOnClickListener(view12 -> startActivity(new Intent(mContext, TimeTableActivity.class)));
+        btnSchedule.setOnClickListener(view1 -> startActivity(new Intent(mContext, ScheduledActivity.class)));
     }
 
     @Override
     public void onBackPressed() {
-      //  super.onBackPressed();
+        //  super.onBackPressed();
     }
 
     @Override
@@ -283,7 +288,7 @@ public class MainActivity extends Activity {
                         addNewRecordsInSQLiteDB(timeTableResponses);
                     } else {
                         Log.e("timeTableRes : ", "0");
-                        CommonFunction.showMessageInDialog(mContext,"No records found using the bellow device id. \n" + strDeviceId );
+                        CommonFunction.showMessageInDialog(mContext, "No records found using the bellow device id. \n" + strDeviceId);
                     }
                 }
 
@@ -294,7 +299,7 @@ public class MainActivity extends Activity {
             });
         } else {
             CommonFunction.networkErrorMessage(mContext);
-           checkStartEndTimeSavedInPhone();
+            checkStartEndTimeSavedInPhone();
         }
     }
 
@@ -321,11 +326,11 @@ public class MainActivity extends Activity {
             String roomname = listTimeTable.get(x).getRoomname();
             String roomsize = listTimeTable.get(x).getRoomsize();
             String roomcapacity = listTimeTable.get(x).getRoomcapacity();
-            Log.e("date :",transactiondate);
-            Log.e("start time  :",starttime);
-            Log.e("end time :",endtime);
+            Log.e("date :", transactiondate);
+            Log.e("start time  :", starttime);
+            Log.e("end time :", endtime);
 
-            dbHandler.addTime(unitcode,unitname,classno,teachername,schedulestatus,transactiondate,starttime,endtime,roomcode,roomname,roomsize,roomcapacity);
+            dbHandler.addTime(unitcode, unitname, classno, teachername, schedulestatus, transactiondate, starttime, endtime, roomcode, roomname, roomsize, roomcapacity);
         }
 
         ArrayList<ModelClass> listTimeTableFromDB = dbHandler.getAllDataFromSQLiteDB();
@@ -335,27 +340,27 @@ public class MainActivity extends Activity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void setUIDataUsingStartTimeEndTime(ArrayList<ModelClass> timeTableResponses){
+    private void setUIDataUsingStartTimeEndTime(ArrayList<ModelClass> timeTableResponses) {
         for (int x = 0; x < timeTableResponses.size(); x++) {
             if (timeTableResponses.get(x).getTransactiondate() != null) {
                 if (timeTableResponses.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
-                   // String strConcatStartTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
-                   // String strConcatEndTime = strToTime.split(":")[0].concat(strToTime.split(":")[1]);
+                    // String strConcatStartTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
+                    // String strConcatEndTime = strToTime.split(":")[0].concat(strToTime.split(":")[1]);
                     String strConcatCurrentTime = strCurrentTime.split(":")[0].concat(strToTime.split(":")[1]);
-                   // Log.e("strConcatTime : ", strConcatStartTime);
-                   // Log.e("strConcatEndTime : ", strConcatEndTime);
+                    // Log.e("strConcatTime : ", strConcatStartTime);
+                    // Log.e("strConcatEndTime : ", strConcatEndTime);
                     Log.e("strConcatCurrentTime : ", strConcatCurrentTime);
                     String strStartTime = timeTableResponses.get(x).getStarttime();
                     String strEndTime = timeTableResponses.get(x).getEndtime();
                     if (strStartTime != null && strEndTime != null) {
                         if (Integer.parseInt(strConcatCurrentTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatCurrentTime) < Integer.parseInt(strEndTime)) {
-                            tvRoomNo.setText("ROOM " +timeTableResponses.get(x).getRoomcode());
+                            tvRoomNo.setText("ROOM " + timeTableResponses.get(x).getRoomcode());
                             tvRoomSize.setText("Room Size : " + timeTableResponses.get(x).getRoomsize());
                             tvRoomCapacity.setText("Capacity : " + timeTableResponses.get(x).getRoomcapacity());
                             tvInfo.setText(timeTableResponses.get(x).getUnitcode() + ", " + timeTableResponses.get(x).getUnitname());
                             tvClassId.setText(timeTableResponses.get(x).getClassno());
                             tvDate.setText(CommonFunction.getDateInDDMMMMYYYY(timeTableResponses.get(x).getTransactiondate()));
-                            tvTime.setText(CommonFunction.timeConvert(timeTableResponses.get(x).getStarttime() )+ " - " + CommonFunction.timeConvert(timeTableResponses.get(x).getEndtime()));
+                            tvTime.setText(CommonFunction.timeConvert(timeTableResponses.get(x).getStarttime()) + " - " + CommonFunction.timeConvert(timeTableResponses.get(x).getEndtime()));
                             tvTeacherName.setText(timeTableResponses.get(x).getTeachername());
                             tvRemarks.setText(timeTableResponses.get(x).getSchedulestatus());
 
@@ -366,23 +371,23 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void fetchLocalDB(boolean isMatchStartEbdTime){
+    private void fetchLocalDB(boolean isMatchStartEbdTime) {
         // fetch local db data
         ArrayList<ModelClass> listTimeTableFromDB = dbHandler.getAllDataFromSQLiteDB();
-        if(isMatchStartEbdTime) {
+        if (isMatchStartEbdTime) {
             setUIDataUsingStartTimeEndTime(listTimeTableFromDB);
         }
         reloadTimeTable(listTimeTableFromDB);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void scheduleJob(){
+    private void scheduleJob() {
         JobScheduler jobScheduler = (JobScheduler) mContext.getSystemService(JOB_SCHEDULER_SERVICE);
 
         @SuppressLint("JobSchedulerService") ComponentName componentName = new ComponentName(this, MyJobScheduler.class);
         JobInfo jobInfo = new JobInfo.Builder(1, componentName)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(5*60*1000)
+                .setPeriodic(5 * 60 * 1000)
                 .build();
         jobScheduler.schedule(jobInfo);
     }
@@ -402,36 +407,27 @@ public class MainActivity extends Activity {
         super.onDestroy();
     }
 
-    public class MyJobReceive extends BroadcastReceiver{
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.e("MyJobReceive","onReceive");
-            syncServerTime();
-        }
-    }
-
-    private void checkStartEndTimeSavedInPhone(){
+    private void checkStartEndTimeSavedInPhone() {
         if (!sessionManager.getStartTime().equals("") && !sessionManager.getEndTime().equals("")) {
             strFromTime = sessionManager.getStartTime();
             strToTime = sessionManager.getEndTime();
-            Log.e("start : ",strFromTime);
-            Log.e("end : ",strToTime);
+            Log.e("start : ", strFromTime);
+            Log.e("end : ", strToTime);
             String strConcatStartTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
             String strConcatEndTime = strToTime.split(":")[0].concat(strToTime.split(":")[1]);
             String strConcatTime = strCurrentTime.split(":")[0].concat(strCurrentTime.split(":")[1]);
 
             if (Integer.parseInt(strConcatTime) > Integer.parseInt(strConcatStartTime) && Integer.parseInt(strConcatTime) < Integer.parseInt(strConcatEndTime)) {
                 fetchLocalDB(true);
-            }else{
+            } else {
                 updateUI();
             }
-        }else {
+        } else {
             fetchLocalDB(false);
         }
     }
 
-    private void updateDateTime(){
+    private void updateDateTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         strCurrentDate = sdf.format(new Date());
         Log.e("strCurrentDate : ", strCurrentDate);
@@ -442,7 +438,7 @@ public class MainActivity extends Activity {
     }
 
     @SuppressLint("SetTextI18n")
-    private void updateUI(){
+    private void updateUI() {
         tvRoomNo.setText("");
         tvRoomSize.setText("Room Size :  ");
         tvRoomCapacity.setText("Capacity : ");
@@ -452,5 +448,14 @@ public class MainActivity extends Activity {
         tvTime.setText("-");
         tvTeacherName.setText("-");
         tvRemarks.setText("-");
+    }
+
+    public class MyJobReceive extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e("MyJobReceive", "onReceive");
+            syncServerTime();
+        }
     }
 }
