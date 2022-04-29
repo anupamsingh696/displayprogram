@@ -350,14 +350,16 @@ public class MainActivity extends Activity {
         for (int x = 0; x < timeTableResponses.size(); x++) {
             if (timeTableResponses.get(x).getTransactiondate() != null) {
                 if (timeTableResponses.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
-                    String strConcatStartTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
-                    String strConcatEndTime = strToTime.split(":")[0].concat(strToTime.split(":")[1]);
-                    Log.e("strConcatTime : ", strConcatStartTime);
-                    Log.e("strConcatEndTime : ", strConcatEndTime);
+                   // String strConcatStartTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
+                   // String strConcatEndTime = strToTime.split(":")[0].concat(strToTime.split(":")[1]);
+                    String strConcatCurrentTime = strCurrentTime.split(":")[0].concat(strToTime.split(":")[1]);
+                   // Log.e("strConcatTime : ", strConcatStartTime);
+                   // Log.e("strConcatEndTime : ", strConcatEndTime);
+                    Log.e("strConcatCurrentTime : ", strConcatCurrentTime);
                     String strStartTime = timeTableResponses.get(x).getStarttime();
                     String strEndTime = timeTableResponses.get(x).getEndtime();
                     if (strStartTime != null && strEndTime != null) {
-                        if (Integer.parseInt(strConcatStartTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatEndTime) < Integer.parseInt(strEndTime)) {
+                        if (Integer.parseInt(strConcatCurrentTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatCurrentTime) < Integer.parseInt(strEndTime)) {
                             tvRoomNo.setText("ROOM " +timeTableResponses.get(x).getRoomcode());
                             tvRoomSize.setText("Room Size : " + timeTableResponses.get(x).getRoomsize());
                             tvRoomCapacity.setText("Capacity : " + timeTableResponses.get(x).getRoomcapacity());
