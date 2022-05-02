@@ -3,6 +3,7 @@ package com.example.displayprogram;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.job.JobInfo;
@@ -77,6 +78,7 @@ public class MainActivity extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.rvClassStatus);
@@ -269,6 +271,16 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        ActivityManager activityManager = (ActivityManager) getApplicationContext()
+                .getSystemService(Context.ACTIVITY_SERVICE);
+
+        activityManager.moveTaskToFront(getTaskId(), 0);
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // Do nothing or catch the keys you want to block
         return false;
@@ -398,6 +410,7 @@ public class MainActivity extends Activity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("MY_ACTION");
         registerReceiver(myJobReceive, intentFilter);
+
         super.onStart();
     }
 
@@ -439,15 +452,33 @@ public class MainActivity extends Activity {
 
     @SuppressLint("SetTextI18n")
     private void updateUI() {
-        tvRoomNo.setText("");
-        tvRoomSize.setText("Room Size :  ");
-        tvRoomCapacity.setText("Capacity : ");
-        tvInfo.setText("-");
-        tvClassId.setText("-");
-        tvDate.setText("-");
-        tvTime.setText("-");
-        tvTeacherName.setText("-");
-        tvRemarks.setText("-");
+            tvRoomNo.setText("");
+            tvRoomSize.setText("Room Size :  ");
+            tvRoomCapacity.setText("Capacity : ");
+            tvInfo.setText("-");
+            tvClassId.setText("-");
+            tvDate.setText("-");
+            tvTime.setText("-");
+            tvTeacherName.setText("-");
+            tvRemarks.setText("-");
+    }
+
+    @Override
+    protected void onResume() {
+        FullScreenCall();
+        super.onResume();
+    }
+
+    public void FullScreenCall() {
+        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api
+            View v = this.getWindow().getDecorView();
+            v.setSystemUiVisibility(View.GONE);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            //for new api versions.
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
     }
 
     public class MyJobReceive extends BroadcastReceiver {
@@ -455,6 +486,7 @@ public class MainActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.e("MyJobReceive", "onReceive");
+            System.gc();
             syncServerTime();
         }
     }
