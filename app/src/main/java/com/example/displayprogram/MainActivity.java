@@ -399,7 +399,7 @@ public class MainActivity extends Activity {
         @SuppressLint("JobSchedulerService") ComponentName componentName = new ComponentName(this, MyJobScheduler.class);
         JobInfo jobInfo = new JobInfo.Builder(1, componentName)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(5 * 60 * 1000)
+                .setPeriodic(15 * 60 * 1000)
                 .build();
         jobScheduler.schedule(jobInfo);
     }
