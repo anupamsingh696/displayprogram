@@ -316,8 +316,8 @@ public class MainActivity extends Activity {
     }
 
     private void reloadTimeTable(ArrayList<ModelClass> listTimeTable) {
-
-        AdapterClassStatus adapter = new AdapterClassStatus(listTimeTable);
+        ArrayList<ModelClass> listTimeTable1 = upToThreeData(listTimeTable);
+        AdapterClassStatus adapter = new AdapterClassStatus(listTimeTable1);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
@@ -489,5 +489,68 @@ public class MainActivity extends Activity {
             System.gc();
             syncServerTime();
         }
+    }
+
+    private ArrayList<ModelClass> upToThreeData(ArrayList<ModelClass> listTimeTable) {
+        Log.e("upToThreeData : ", "listTimeTable : " + listTimeTable.size());
+
+        ArrayList<ModelClass> listTimeTableFinal = new ArrayList<>();
+        ArrayList<ModelClass> listPast = new ArrayList<>();
+        ArrayList<ModelClass> listCurrent = new ArrayList<>();
+        ArrayList<ModelClass> listFuture = new ArrayList<>();
+
+        String strConcatCurrentTime = strCurrentTime.split(":")[0].concat(strToTime.split(":")[1]);
+
+        Log.e("upToThreeData : ", "strConcatCurrentTime : " + strConcatCurrentTime);
+        Log.e("upToThreeData : ", "strCurrentDate : " + strCurrentDate);
+
+        for (int x = 0; x < listTimeTable.size(); x++) {
+
+            String strStartTime = listTimeTable.get(x).getStarttime();
+            String strEndTime = listTimeTable.get(x).getEndtime();
+
+            if (listTimeTable.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
+                Log.e("upToThreeData : ", "time  : " + strStartTime + " - " + strEndTime);
+
+                if (Integer.parseInt(strConcatCurrentTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatCurrentTime) > Integer.parseInt(strEndTime)) {
+                    listPast.add(listTimeTable.get(x));
+                }  else if (Integer.parseInt(strConcatCurrentTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatCurrentTime) < Integer.parseInt(strEndTime)) {
+                    listCurrent.add(listTimeTable.get(x));
+                } else if (Integer.parseInt(strStartTime) > Integer.parseInt(strConcatCurrentTime)) {
+                    listFuture.add(listTimeTable.get(x));
+                }
+            }
+        }
+
+        Log.e("upToThreeData : ", "listPast : " + listPast.size());
+        Log.e("upToThreeData : ", "listCurrent : " + listCurrent.size());
+        Log.e("upToThreeData : ", "listFuture : " + listFuture.size());
+
+        if (listPast.size() > 0) {
+            listTimeTableFinal.add(listPast.get(listPast.size() - 1));
+        }
+        if (listCurrent.size() > 0) {
+            listTimeTableFinal.add(listCurrent.get(listCurrent.size() - 1));
+        }
+        if (listFuture.size() > 0) {
+            if (listTimeTableFinal.size() > 0) {
+                if (listTimeTableFinal.size() == 1) {
+                    if (listFuture.size() == 1) {
+                        listTimeTableFinal.add(listFuture.get(0));
+                    } else if (listFuture.size() >= 2) {
+                        listTimeTableFinal.add(listFuture.get(0));
+                        listTimeTableFinal.add(listFuture.get(1));
+                    }
+                } else if (listTimeTableFinal.size() == 2) {
+                    if (listFuture.size() >= 1) {
+                        listTimeTableFinal.add(listFuture.get(0));
+                    }
+                }
+            }
+        }
+
+        Log.e("upToThreeData : ", "listTimeTableFinal : " + listTimeTableFinal.size());
+
+        return listTimeTableFinal;
     }
 }

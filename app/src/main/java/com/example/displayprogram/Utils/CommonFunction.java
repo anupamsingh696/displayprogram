@@ -22,7 +22,7 @@ public class CommonFunction {
 
         String deviceId;
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             deviceId = Settings.Secure.getString(
                     context.getContentResolver(),
                     Settings.Secure.ANDROID_ID);
@@ -34,6 +34,12 @@ public class CommonFunction {
                 deviceId = Settings.Secure.getString(
                         context.getContentResolver(),
                         Settings.Secure.ANDROID_ID);
+            }
+        }
+
+        if(deviceId==null || deviceId.isEmpty()){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                deviceId = Build.getSerial();
             }
         }
 
