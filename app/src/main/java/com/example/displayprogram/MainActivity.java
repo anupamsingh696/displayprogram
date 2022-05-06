@@ -550,6 +550,17 @@ public class MainActivity extends Activity {
                         listTimeTableFinal.add(listFuture.get(0));
                     }
                 }
+            }else {
+                if (listFuture.size() == 1) {
+                    listTimeTableFinal.add(listFuture.get(0));
+                } else if (listFuture.size() == 2) {
+                    listTimeTableFinal.add(listFuture.get(0));
+                    listTimeTableFinal.add(listFuture.get(1));
+                }else {
+                    listTimeTableFinal.add(listFuture.get(0));
+                    listTimeTableFinal.add(listFuture.get(1));
+                    listTimeTableFinal.add(listFuture.get(2));
+                }
             }
         }
 
