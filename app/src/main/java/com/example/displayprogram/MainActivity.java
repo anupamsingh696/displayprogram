@@ -355,6 +355,7 @@ public class MainActivity extends Activity {
 
     @SuppressLint("SetTextI18n")
     private void setUIDataUsingStartTimeEndTime(ArrayList<ModelClass> timeTableResponses) {
+        boolean isDataFound = false;
         for (int x = 0; x < timeTableResponses.size(); x++) {
             if (timeTableResponses.get(x).getTransactiondate() != null) {
                 if (timeTableResponses.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
@@ -364,6 +365,7 @@ public class MainActivity extends Activity {
                     String strEndTime = timeTableResponses.get(x).getEndtime();
                     if (strStartTime != null && strEndTime != null) {
                         if (Integer.parseInt(strConcatCurrentTime) > Integer.parseInt(strStartTime) && Integer.parseInt(strConcatCurrentTime) < Integer.parseInt(strEndTime)) {
+                           isDataFound = true;
                             tvRoomNo.setText("ROOM " + timeTableResponses.get(x).getRoomcode());
                             tvRoomSize.setText("Room Size : " + timeTableResponses.get(x).getRoomsize());
                             tvRoomCapacity.setText("Capacity : " + timeTableResponses.get(x).getRoomcapacity());
@@ -378,6 +380,10 @@ public class MainActivity extends Activity {
                     }
                 }
             }
+        }
+
+        if(!isDataFound){
+            updateUI();
         }
     }
 
