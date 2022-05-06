@@ -316,11 +316,13 @@ public class MainActivity extends Activity {
     }
 
     private void reloadTimeTable(ArrayList<ModelClass> listTimeTable) {
-        ArrayList<ModelClass> listTimeTable1 = upToThreeData(listTimeTable);
-        AdapterClassStatus adapter = new AdapterClassStatus(listTimeTable1);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+        if(listTimeTable.size()>0) {
+            ArrayList<ModelClass> listTimeTable1 = upToThreeData(listTimeTable);
+            AdapterClassStatus adapter = new AdapterClassStatus(listTimeTable1);
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(adapter);
+        }
     }
 
     private void addNewRecordsInSQLiteDB(ArrayList<ModelClass> listTimeTable) {
@@ -356,11 +358,7 @@ public class MainActivity extends Activity {
         for (int x = 0; x < timeTableResponses.size(); x++) {
             if (timeTableResponses.get(x).getTransactiondate() != null) {
                 if (timeTableResponses.get(x).getTransactiondate().trim().equals(strCurrentDate)) {
-                    // String strConcatStartTime = strFromTime.split(":")[0].concat(strFromTime.split(":")[1]);
-                    // String strConcatEndTime = strToTime.split(":")[0].concat(strToTime.split(":")[1]);
-                    String strConcatCurrentTime = strCurrentTime.split(":")[0].concat(strToTime.split(":")[1]);
-                    // Log.e("strConcatTime : ", strConcatStartTime);
-                    // Log.e("strConcatEndTime : ", strConcatEndTime);
+                    String strConcatCurrentTime = strCurrentTime.split(":")[0].concat(strCurrentTime.split(":")[1]);
                     Log.e("strConcatCurrentTime : ", strConcatCurrentTime);
                     String strStartTime = timeTableResponses.get(x).getStarttime();
                     String strEndTime = timeTableResponses.get(x).getEndtime();
@@ -499,7 +497,7 @@ public class MainActivity extends Activity {
         ArrayList<ModelClass> listCurrent = new ArrayList<>();
         ArrayList<ModelClass> listFuture = new ArrayList<>();
 
-        String strConcatCurrentTime = strCurrentTime.split(":")[0].concat(strToTime.split(":")[1]);
+        String strConcatCurrentTime = strCurrentTime.split(":")[0].concat(strCurrentTime.split(":")[1]);
 
         Log.e("upToThreeData : ", "strConcatCurrentTime : " + strConcatCurrentTime);
         Log.e("upToThreeData : ", "strCurrentDate : " + strCurrentDate);
