@@ -6,18 +6,23 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.displayprogram.Adapter.AdapterTimeTable;
 import com.example.displayprogram.DB.DBHandler;
 import com.example.displayprogram.Model.ModelClass;
+import com.example.displayprogram.Utils.SessionManager;
 
 import java.util.ArrayList;
 
 public class TimeTableActivity extends Activity {
     RecyclerView recyclerView;
+    TextView tvHeader;
     private DBHandler dbHandler;
     private Context mContext;
+    SessionManager sessionManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,9 +33,16 @@ public class TimeTableActivity extends Activity {
         setContentView(R.layout.activity_time_table);
 
         recyclerView = findViewById(R.id.rvTimetable);
+        tvHeader = findViewById(R.id.tvHeader);
 
         mContext = this;
         dbHandler = new DBHandler(mContext);
+        sessionManager = new SessionManager(mContext);
+        if(sessionManager.getDeviceId().isEmpty()){
+            tvHeader.setText("TimeTable");
+        }else {
+            tvHeader.setText("TimeTable (Device Id : "+sessionManager.getDeviceId()+" )");
+        }
 
         fetchLocalDB();
     }

@@ -127,8 +127,13 @@ public class MainActivity extends Activity {
         } else if (permissionCheckRead != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE_STATE);
         } else {
-            strDeviceId = CommonFunction.getDeviceId(this);
-            Log.e("strDeviceId : ", strDeviceId);
+            if(sessionManager.getDeviceId().isEmpty()) {
+                strDeviceId = CommonFunction.getDeviceId(this);
+                Log.e("strDeviceId : ", strDeviceId);
+                sessionManager.setDeviceId(strDeviceId);
+            }else {
+                strDeviceId = sessionManager.getDeviceId();
+            }
             syncServerTime();
         }
     }
@@ -177,8 +182,13 @@ public class MainActivity extends Activity {
                     if (permissionCheckRead != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, REQUEST_READ_EXTERNAL_STORAGE_STATE);
                     } else {
-                        strDeviceId = CommonFunction.getDeviceId(this);
-                        Log.e("strDeviceId : ", strDeviceId);
+                        if(sessionManager.getDeviceId().isEmpty()) {
+                            strDeviceId = CommonFunction.getDeviceId(this);
+                            Log.e("strDeviceId : ", strDeviceId);
+                            sessionManager.setDeviceId(strDeviceId);
+                        }else {
+                            strDeviceId = sessionManager.getDeviceId();
+                        }
                         syncServerTime();
                     }
                 }

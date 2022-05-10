@@ -32,4 +32,13 @@ public class SessionManager {
         myEdit.commit();
     }
 
+    public String getDeviceId() {
+        return sharedPreferences.getString("deviceId", "");
+    }
+
+    public void setDeviceId(String deviceId) {
+        SharedPreferences.Editor myEdit = sharedPreferences.edit();
+        myEdit.putString("deviceId", deviceId);
+        myEdit.commit();
+    }
 }
